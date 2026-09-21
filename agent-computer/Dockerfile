@@ -15,7 +15,17 @@ ENV DEBIAN_FRONTEND=noninteractive
 ENV PLAYWRIGHT_BROWSERS_PATH=/ms-playwright
 COPY --from=node-toolchain /usr/local /usr/local
 COPY --from=bun-toolchain /usr/local/bin/bun /usr/local/bin/bun
-RUN apt-get update && apt-get install -y --no-install-recommends \
+
+# Docker Desktop connections can be much less tolerant of transient Ubuntu mirror disconnects than
+# a host apt run. Keep retries global so they also apply to Playwright's install-deps apt calls.
+RUN printf '%s\n' \
+      'Acquire::Retries "10";' \
+      'Acquire::http::Timeout "60";' \
+      'Acquire::https::Timeout "60";' \
+      'Acquire::http::Pipeline-Depth "0";' \
+      > /etc/apt/apt.conf.d/80-openbot-network-retries \
+  && apt-get update \
+  && apt-get install -y --no-install-recommends \
       ca-certificates curl unzip xz-utils \
   && ln -s bun /usr/local/bin/bunx \
   && bunx --bun "playwright@${PLAYWRIGHT_VERSION}" install --with-deps chromium \
