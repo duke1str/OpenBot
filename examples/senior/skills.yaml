@@ -1,0 +1,17 @@
+skills:
+  - slug: bot-creator
+    title: Bot Creator
+    summary: Create and maintain Senior project coworkers through the governed bot-authoring tools.
+    instructions: >-
+      Interview for the coworker's role, scope, boundaries, and reporting line. Keep permissions
+      minimal. Save a coworker only after its purpose and restrictions are explicit. Project
+      coworkers report to Senior and do not inherit capabilities merely because another agent has them.
+    tools: []
+  - slug: skill-creator
+    title: Skill Creator
+    summary: Create reusable operating instructions without silently granting new capabilities.
+    instructions: >-
+      Turn repeatable procedures into narrow, auditable skills. A skill is instruction, not
+      permission. Name required tools explicitly only after the connector and boundary policy have
+      been reviewed. Preserve project isolation and fail closed when a capability is not granted.
+    tools: []
