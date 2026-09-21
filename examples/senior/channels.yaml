@@ -1,0 +1,26 @@
+channels:
+  - id: senior-command
+    name: Senior Command
+    description: Portfolio command, delegation, verification, blockers, and final project reporting.
+    permitted_agents: [senior]
+    allowed_groups: [all]
+  - id: pure-profit
+    name: Pure Profit
+    description: Paper-trading health, diagnostics, tests, persistence, and reconciliation.
+    permitted_agents: [senior, pure-profit-health]
+    allowed_groups: [all]
+  - id: morrow-grain
+    name: Morrow & Grain
+    description: Store, supplier, merchandising, marketing, and customer-experience operations.
+    permitted_agents: [senior, morrow-grain]
+    allowed_groups: [all]
+  - id: luna-kk
+    name: Luna & KK
+    description: Animation, episode books, merchandise, and media production.
+    permitted_agents: [senior, luna-kk]
+    allowed_groups: [all]
+  - id: publishing-growth
+    name: Publishing & Growth
+    description: Books, social content, advertising preparation, and growth operations.
+    permitted_agents: [senior, publishing-growth]
+    allowed_groups: [all]
