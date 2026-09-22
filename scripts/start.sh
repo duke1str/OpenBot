@@ -386,9 +386,8 @@ const info = JSON.parse(process.argv[1]);
 const status = info.licenseStatus;
 const agents = Object.keys(info.agents ?? {});
 if (status !== "valid") {
-  console.error("\\x1b[31m  licence is \\"" + status + "\\", not \\"valid\\".\\x1b[0m");
-  console.error("\\x1b[31m  Check INTELLIGENCE_API_KEY: npx copilotkit@latest login && npx copilotkit@latest project select\\x1b[0m");
-  console.error("\\x1b[31m  See README.md for Intelligence setup.\\x1b[0m");
+  console.error("\\x1b[31m  licence status is " + status + "; expected valid.\\x1b[0m");
+  console.error("\\x1b[31m  Check INTELLIGENCE_API_KEY with the CopilotKit CLI.\\x1b[0m");
   process.exit(1);
 }
 if (agents.length === 0) {
