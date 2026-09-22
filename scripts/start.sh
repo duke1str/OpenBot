@@ -381,20 +381,22 @@ fi
 
 info "3/4  Runtime health"
 INFO="$(curl -fsS --max-time 8 "http://localhost:$SERVER_PORT/api/copilotkit/info")"
-python3 - "$INFO" <<'PY'
-import json, sys
-info = json.loads(sys.argv[1])
-status, agents = info.get("licenseStatus"), list(info.get("agents", {}))
-if status != "valid":
-    print(f"\033[31m  licence is '{status}', not 'valid'.\033[0m")
-    print("\033[31m  Check INTELLIGENCE_API_KEY: npx copilotkit@latest login && npx copilotkit@latest project select\033[0m")
-    print("\033[31m  See README.md for Intelligence setup.\033[0m")
-    raise SystemExit(1)
-if not agents:
-    print("\033[31m  No Bots registered.\033[0m")
-    raise SystemExit(1)
-print(f"\033[32m  licence valid · mode {info.get('mode')} · Bots: {', '.join(agents)}\033[0m")
-PY
+bun -e '
+const info = JSON.parse(process.argv[1]);
+const status = info.licenseStatus;
+const agents = Object.keys(info.agents ?? {});
+if (status !== "valid") {
+  console.error(\`\\x1b[31m  licence is "\${status}", not "valid".\\x1b[0m\`);
+  console.error("\\x1b[31m  Check INTELLIGENCE_API_KEY: npx copilotkit@latest login && npx copilotkit@latest project select\\x1b[0m");
+  console.error("\\x1b[31m  See README.md for Intelligence setup.\\x1b[0m");
+  process.exit(1);
+}
+if (agents.length === 0) {
+  console.error("\\x1b[31m  No Bots registered.\\x1b[0m");
+  process.exit(1);
+}
+console.log(\`\\x1b[32m  licence valid · mode \${info.mode} · Bots: \${agents.join(", ")}\\x1b[0m\`);
+' "$INFO"
 
 info "4/4  App"
 require_free_or_ours "$APP_PORT" app
