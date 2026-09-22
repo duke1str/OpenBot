@@ -386,7 +386,7 @@ const info = JSON.parse(process.argv[1]);
 const status = info.licenseStatus;
 const agents = Object.keys(info.agents ?? {});
 if (status !== "valid") {
-  console.error(\`\\x1b[31m  licence is "\${status}", not "valid".\\x1b[0m\`);
+  console.error("\\x1b[31m  licence is \\"" + status + "\\", not \\"valid\\".\\x1b[0m");
   console.error("\\x1b[31m  Check INTELLIGENCE_API_KEY: npx copilotkit@latest login && npx copilotkit@latest project select\\x1b[0m");
   console.error("\\x1b[31m  See README.md for Intelligence setup.\\x1b[0m");
   process.exit(1);
@@ -395,7 +395,7 @@ if (agents.length === 0) {
   console.error("\\x1b[31m  No Bots registered.\\x1b[0m");
   process.exit(1);
 }
-console.log(\`\\x1b[32m  licence valid · mode \${info.mode} · Bots: \${agents.join(", ")}\\x1b[0m\`);
+console.log("\\x1b[32m  licence valid · mode " + info.mode + " · Bots: " + agents.join(", ") + "\\x1b[0m");
 ' "$INFO"
 
 info "4/4  App"
