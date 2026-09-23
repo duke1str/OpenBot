@@ -253,10 +253,18 @@ export COMPUTER_PORT BOT_PORT LANGGRAPH_PORT SUPERVISOR_PORT
 # Do not redirect Docker Compose output on Windows. Docker Desktop can emit
 # "failed to get console: The handle is invalid" when stdout is redirected from Git Bash.
 docker compose up -d --build "${SERVICES[@]}"
-if ! docker compose run --rm --build migrate >"$LOGS/migrate.log" 2>&1; then
-  red "  Migrations did not apply. The database is not the schema this server expects."
-  red "  Log: $LOGS/migrate.log"
-  exit 1
+if [[ "${OS:-}" == "Windows_NT" || "${MSYSTEM:-}" == MINGW* ]]; then
+  # Docker Desktop on Windows can treat redirected Compose output as an invalid console handle.
+  if ! docker compose run --rm --build migrate; then
+    red "  Migrations did not apply. The database is not the schema this server expects."
+    exit 1
+  fi
+else
+  if ! docker compose run --rm --build migrate >"$LOGS/migrate.log" 2>&1; then
+    red "  Migrations did not apply. The database is not the schema this server expects."
+    red "  Log: $LOGS/migrate.log"
+    exit 1
+  fi
 fi
 wait_for "http://localhost:$COMPUTER_PORT/health" "agent-computer"
 if [ "$BOT_PROVIDER" != "anthropic" ]; then
