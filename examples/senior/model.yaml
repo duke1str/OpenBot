@@ -1,4 +1,4 @@
 model:
   provider: openai
-  credential_secret_ref: openai-api-key
+  credential_secret_ref: ollama-local-key
   default_model: qwen3:4b-instruct-2507-q4_K_M
