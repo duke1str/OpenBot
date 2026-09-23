@@ -1,4 +1,4 @@
 model:
   provider: openai
-  credential_secret_ref: ollama-local-key
-  default_model: qwen3:4b-instruct-2507-q4_K_M
+  credential_secret_ref: spark-local-key
+  default_model: SparkLLM/Spark-X2.5-4B
