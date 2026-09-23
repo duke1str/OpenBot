@@ -1,4 +1,4 @@
 model:
   provider: openai
   credential_secret_ref: spark-local-key
-  default_model: SparkLLM/Spark-X2.5-4B
+  default_model: maternion/spark-x2.5:4b
