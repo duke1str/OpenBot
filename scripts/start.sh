@@ -250,7 +250,9 @@ SERVICES+=(agent-langgraph)
 
 export SUPERVISOR_TOKEN COMPUTER_TOKEN WORKER_SHARED_SECRET
 export COMPUTER_PORT BOT_PORT LANGGRAPH_PORT SUPERVISOR_PORT
-docker compose up -d --build "${SERVICES[@]}" >/dev/null
+# Do not redirect Docker Compose output on Windows. Docker Desktop can emit
+# "failed to get console: The handle is invalid" when stdout is redirected from Git Bash.
+docker compose up -d --build "${SERVICES[@]}"
 if ! docker compose run --rm --build migrate >"$LOGS/migrate.log" 2>&1; then
   red "  Migrations did not apply. The database is not the schema this server expects."
   red "  Log: $LOGS/migrate.log"
