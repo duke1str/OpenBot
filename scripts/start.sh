@@ -393,18 +393,30 @@ info "3/4  Runtime health"
 INFO="$(curl -fsS --max-time 8 "http://localhost:$SERVER_PORT/api/copilotkit/info")"
 bun -e '
 const info = JSON.parse(process.argv[1]);
-const status = info.licenseStatus;
+const status = String(info.licenseStatus ?? "unknown").toLowerCase();
 const agents = Object.keys(info.agents ?? {});
-if (status !== "valid") {
-  console.error("\\x1b[31m  licence status is " + status + "; expected valid.\\x1b[0m");
-  console.error("\\x1b[31m  Check INTELLIGENCE_API_KEY with the CopilotKit CLI.\\x1b[0m");
-  process.exit(1);
-}
+
 if (agents.length === 0) {
   console.error("\\x1b[31m  No Bots registered.\\x1b[0m");
   process.exit(1);
 }
-console.log("\\x1b[32m  licence valid · mode " + info.mode + " · Bots: " + agents.join(", ") + "\\x1b[0m");
+
+// Managed Intelligence can temporarily report "unknown" while the local deployment itself is
+// healthy and its Bots are registered. Do not prevent the local app from starting for that
+// indeterminate state. Explicit negative entitlement states remain fatal.
+if (["invalid", "expired", "revoked", "denied"].includes(status)) {
+  console.error("\\x1b[31m  CopilotKit licence status is " + status + ".\\x1b[0m");
+  console.error("\\x1b[31m  Check INTELLIGENCE_API_KEY with the CopilotKit CLI.\\x1b[0m");
+  process.exit(1);
+}
+
+if (status === "valid") {
+  console.log("\\x1b[32m  licence valid · mode " + info.mode + " · Bots: " + agents.join(", ") + "\\x1b[0m");
+} else {
+  console.warn("\\x1b[33m  licence status is " + status + "; continuing because the local runtime and Bots are healthy.\\x1b[0m");
+  console.warn("\\x1b[33m  Intelligence-dependent memory/thread features still require a working project key.\\x1b[0m");
+  console.log("\\x1b[32m  runtime healthy · mode " + info.mode + " · Bots: " + agents.join(", ") + "\\x1b[0m");
+}
 ' "$INFO"
 
 info "4/4  App"
