@@ -274,7 +274,9 @@ export COMPUTER_PORT BOT_PORT LANGGRAPH_PORT SUPERVISOR_PORT
 if [ "${OPENBOT_SKIP_BUILD:-false}" = "true" ]; then
   info "  using existing Docker images (configuration-only refresh)"
   docker compose up -d --no-build "${SERVICES[@]}"
-  MIGRATE_BUILD_ARGS=(--no-build)
+  # docker compose run has no --no-build flag. An empty array means reuse the
+  # existing migrate image without asking Compose to rebuild it.
+  MIGRATE_BUILD_ARGS=()
 else
   docker compose up -d --build "${SERVICES[@]}"
   MIGRATE_BUILD_ARGS=(--build)
