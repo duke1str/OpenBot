@@ -273,8 +273,8 @@ export COMPUTER_PORT BOT_PORT LANGGRAPH_PORT SUPERVISOR_PORT
 # "failed to get console: The handle is invalid" when stdout is redirected from Git Bash.
 if [ "${OPENBOT_SKIP_BUILD:-false}" = "true" ]; then
   info "  using existing Docker images (configuration-only refresh)"
-  docker compose up -d "${SERVICES[@]}"
-  MIGRATE_BUILD_ARGS=()
+  docker compose up -d --no-build "${SERVICES[@]}"
+  MIGRATE_BUILD_ARGS=(--no-build)
 else
   docker compose up -d --build "${SERVICES[@]}"
   MIGRATE_BUILD_ARGS=(--build)
