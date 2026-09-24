@@ -209,6 +209,25 @@ wait_for() {
 }
 
 stop_server_processes_for_restart() {
+  if [[ "${OS:-}" == "Windows_NT" || "${MSYSTEM:-}" == MINGW* ]]; then
+    # Git Bash's pkill does not reliably see/terminate the native Windows Bun process.
+    # Only terminate the process that currently owns the verified OpenBot server port.
+    # Callers invoke this after identifies_as_openbot has confirmed that SERVER_PORT is ours.
+    powershell.exe -NoProfile -Command \
+      "\$pids = Get-NetTCPConnection -LocalPort $SERVER_PORT -State Listen -ErrorAction SilentlyContinue | Select-Object -ExpandProperty OwningProcess -Unique; foreach (\$pid in \$pids) { Stop-Process -Id \$pid -Force -ErrorAction SilentlyContinue }" \
+      >/dev/null 2>&1 || true
+
+    # Do not race the replacement server against the old listener releasing the port.
+    for _ in $(seq 1 20); do
+      if ! identifies_as_openbot "$SERVER_PORT" server; then
+        return 0
+      fi
+      sleep 0.25
+    done
+    red "  server on $SERVER_PORT did not stop after forced Windows restart"
+    exit 1
+  fi
+
   pkill -f "bun --env-file=../.env src/production-entry.ts" >/dev/null 2>&1 || true
   pkill -f "bun --env-file=../.env src/index.ts" >/dev/null 2>&1 || true
 }
