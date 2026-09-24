@@ -1,26 +1,36 @@
 channels:
   - id: senior-command
     name: Senior Command
-    description: Portfolio command, delegation, verification, blockers, and final project reporting.
+    description: Portfolio command, delegation, verification, blockers, and final reporting.
     permitted_agents: [senior]
     allowed_groups: [all]
+
   - id: pure-profit
     name: Pure Profit
-    description: Paper-trading health, diagnostics, tests, persistence, and reconciliation.
-    permitted_agents: [senior, pure-profit-health]
+    description: PAPER-only trading health, diagnostics, tests, persistence, reconciliation, and research.
+    permitted_agents: [senior, pp-senior]
     allowed_groups: [all]
+
   - id: morrow-grain
     name: Morrow & Grain
-    description: Store, supplier, merchandising, marketing, and customer-experience operations.
-    permitted_agents: [senior, morrow-grain]
+    description: Store, supplier, merchandising, marketing coordination, and customer-experience operations.
+    permitted_agents: [senior, morrow-senior]
     allowed_groups: [all]
+
+  - id: advertising-growth
+    name: Advertising & Growth
+    description: Advertising research, creative preparation, campaign operations, analytics, and growth.
+    permitted_agents: [senior, ads-senior]
+    allowed_groups: [all]
+
   - id: luna-kk
     name: Luna & KK
     description: Animation, episode books, merchandise, and media production.
-    permitted_agents: [senior, luna-kk]
+    permitted_agents: [senior, luna-senior]
     allowed_groups: [all]
-  - id: publishing-growth
-    name: Publishing & Growth
-    description: Books, social content, advertising preparation, and growth operations.
-    permitted_agents: [senior, publishing-growth]
+
+  - id: architect
+    name: Architect
+    description: The Architect of Value, UNLEASHED, publishing, author platform, and book growth.
+    permitted_agents: [senior, architect-senior]
     allowed_groups: [all]
