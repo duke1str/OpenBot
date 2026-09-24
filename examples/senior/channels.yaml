@@ -8,13 +8,13 @@ channels:
   - id: pure-profit
     name: Pure Profit
     description: PAPER-only trading health, diagnostics, tests, persistence, reconciliation, and research.
-    permitted_agents: [senior, pp-senior]
+    permitted_agents: [senior, pure-profit-health]
     allowed_groups: [all]
 
   - id: morrow-grain
     name: Morrow & Grain
     description: Store, supplier, merchandising, marketing coordination, and customer-experience operations.
-    permitted_agents: [senior, morrow-senior]
+    permitted_agents: [senior, morrow-grain]
     allowed_groups: [all]
 
   - id: advertising-growth
@@ -26,11 +26,11 @@ channels:
   - id: luna-kk
     name: Luna & KK
     description: Animation, episode books, merchandise, and media production.
-    permitted_agents: [senior, luna-senior]
+    permitted_agents: [senior, luna-kk]
     allowed_groups: [all]
 
-  - id: architect
+  - id: publishing-growth
     name: Architect
     description: The Architect of Value, UNLEASHED, publishing, author platform, and book growth.
-    permitted_agents: [senior, architect-senior]
+    permitted_agents: [senior, publishing-growth]
     allowed_groups: [all]
