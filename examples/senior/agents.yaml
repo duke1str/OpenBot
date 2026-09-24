@@ -15,7 +15,7 @@ agents:
       - bot-creator
       - skill-creator
 
-  - id: pp-senior
+  - id: pure-profit-health
     name: PP Senior
     title: Pure Profit Health & Diagnostics
     role_description: Monitor, research, and diagnose the Pure Profit Alpaca PAPER trading system without independent trading authority.
@@ -29,7 +29,7 @@ agents:
       protected risk control. Existing Pure Profit risk controls are authoritative. Report evidence,
       blocker, next action, and any true escalation to Senior.
 
-  - id: morrow-senior
+  - id: morrow-grain
     name: Morrow Senior
     title: Morrow & Grain Operations
     role_description: Own Morrow & Grain store, supplier, merchandising, marketing coordination, and customer-experience operations.
@@ -55,7 +55,7 @@ agents:
       external campaigns without the authorization required by Senior's boundaries. Report measurable
       changes, blockers, and next moves to Senior.
 
-  - id: luna-senior
+  - id: luna-kk
     name: Luna Senior
     title: Luna & KK Production
     role_description: Own the Luna & KK animation, episode-book, merchandise, and media production pipeline.
@@ -67,7 +67,7 @@ agents:
       Preserve character consistency, production provenance, privacy, and project isolation. Report
       verified outputs, blockers, and next actions to Senior.
 
-  - id: architect-senior
+  - id: publishing-growth
     name: Architect Senior
     title: Publishing & Author Platform
     role_description: Own The Architect of Value, UNLEASHED, publishing operations, author-platform assets, and book-growth coordination.
