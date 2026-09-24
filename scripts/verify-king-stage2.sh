@@ -26,11 +26,16 @@ INFO="$(curl -fsS --max-time 8 http://127.0.0.1:3001/api/copilotkit/info)" || fa
 bun -e '
 const info = JSON.parse(process.argv[1]);
 const agents = Object.keys(info.agents ?? {});
-if (!agents.length) process.exit(2);
+const required = ["senior","pure-profit-health","morrow-grain","ads-senior","luna-kk","publishing-growth"];
+const missing = required.filter((id) => !agents.includes(id));
+if (missing.length) {
+  console.error("Missing required Senior Bots: " + missing.join(", "));
+  process.exit(2);
+}
 console.log("Bots: " + agents.join(", "));
 console.log("CopilotKit licence status: " + String(info.licenseStatus ?? "unknown"));
-' "$INFO" || fail "OpenBot API has no registered Bots"
-echo "OpenBot API: PASS"
+' "$INFO" || fail "OpenBot API is missing one or more required Senior Bots"
+echo "OpenBot API + Senior roster: PASS"
 
 say "VERIFY OPENBOT APP"
 curl -fsS --max-time 8 http://127.0.0.1:3010/ | grep -qi '<title>[^<]*OpenBot' || fail "OpenBot app is not ready on 3010"
