@@ -252,15 +252,22 @@ export SUPERVISOR_TOKEN COMPUTER_TOKEN WORKER_SHARED_SECRET
 export COMPUTER_PORT BOT_PORT LANGGRAPH_PORT SUPERVISOR_PORT
 # Do not redirect Docker Compose output on Windows. Docker Desktop can emit
 # "failed to get console: The handle is invalid" when stdout is redirected from Git Bash.
-docker compose up -d --build "${SERVICES[@]}"
+if [ "${OPENBOT_SKIP_BUILD:-false}" = "true" ]; then
+  info "  using existing Docker images (configuration-only refresh)"
+  docker compose up -d "${SERVICES[@]}"
+  MIGRATE_BUILD_ARGS=()
+else
+  docker compose up -d --build "${SERVICES[@]}"
+  MIGRATE_BUILD_ARGS=(--build)
+fi
 if [[ "${OS:-}" == "Windows_NT" || "${MSYSTEM:-}" == MINGW* ]]; then
   # Docker Desktop on Windows can treat redirected Compose output as an invalid console handle.
-  if ! docker compose run --rm --build migrate; then
+  if ! docker compose run --rm "${MIGRATE_BUILD_ARGS[@]}" migrate; then
     red "  Migrations did not apply. The database is not the schema this server expects."
     exit 1
   fi
 else
-  if ! docker compose run --rm --build migrate >"$LOGS/migrate.log" 2>&1; then
+  if ! docker compose run --rm "${MIGRATE_BUILD_ARGS[@]}" migrate >"$LOGS/migrate.log" 2>&1; then
     red "  Migrations did not apply. The database is not the schema this server expects."
     red "  Log: $LOGS/migrate.log"
     exit 1
