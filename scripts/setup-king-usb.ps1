@@ -48,7 +48,12 @@ $source = if ($env:OLLAMA_MODELS -and (Test-Path $env:OLLAMA_MODELS)) {
 $dest = "$UsbRoot\models"
 
 Step "COPY EXISTING OLLAMA MODELS TO KING"
-if ((Test-Path $source) -and ((Resolve-Path $source).Path -ne (Resolve-Path $dest).Path)) {
+# Idempotent: once KING has an Ollama model store, do not re-copy multi-GB blobs.
+# The required Q4 model is verified below and pulled directly to KING only if missing.
+$destHasStore = (Test-Path "$dest\blobs") -and (Test-Path "$dest\manifests") -and ((Get-ChildItem "$dest\blobs" -File -ErrorAction SilentlyContinue | Measure-Object).Count -gt 0)
+if ($destHasStore) {
+  Write-Host "KING model store is already populated; skipping bulk model copy."
+} elseif ((Test-Path $source) -and ((Resolve-Path $source).Path -ne (Resolve-Path $dest).Path)) {
   & robocopy $source $dest /E /COPY:DAT /DCOPY:DAT /R:2 /W:2 /NFL /NDL /NP
   $rc = $LASTEXITCODE
   if ($rc -gt 7) { Fail "Model copy failed. Robocopy exit code $rc." }
@@ -86,23 +91,32 @@ if (-not ($tags.models.name -contains $Model)) {
 
 $body = @{
   model = $Model
-  messages = @(@{ role='user'; content='Reply with exactly: KING SPARK READY' })
+  messages = @(@{ role='user'; content='Reply briefly with: KING SPARK READY' })
   stream = $false
-  options = @{ num_ctx=8192; num_predict=32 }
+  think = $false
+  options = @{ num_ctx=8192; num_predict=96 }
 } | ConvertTo-Json -Depth 6
 $response = Invoke-RestMethod -Uri 'http://127.0.0.1:11434/api/chat' -Method Post -ContentType 'application/json' -Body $body -TimeoutSec 180
-# A local model may add reasoning or formatting even when inference is healthy. The acceptance gate
-# is successful generation, not exact wording.
+
+# Thinking-capable models can spend a short token budget entirely in message.thinking.
+# Disable thinking for this acceptance test and require a completed user-visible answer.
 $content = [string]$response.message.content
 if (-not $response.done -or [string]::IsNullOrWhiteSpace($content)) {
-  Fail "Spark on KING did not return a completed non-empty response."
+  $thinkingLength = ([string]$response.message.thinking).Length
+  Write-Host ("Diagnostic: done={0}; done_reason={1}; eval_count={2}; thinking_chars={3}" -f $response.done, $response.done_reason, $response.eval_count, $thinkingLength)
+  $response | ConvertTo-Json -Depth 8 | Set-Content "$UsbRoot\logs\king-spark-last-response.json" -Encoding UTF8
+  Fail "Spark on KING completed without a user-visible answer. Diagnostic saved to logs\king-spark-last-response.json."
 }
 Write-Host "Spark inference from KING: PASS" -ForegroundColor Green
 Write-Host ("Spark said: " + $content.Trim())
 
 Step "REMOVE UNUSABLE 8.2GB BF16 COPY FROM KING"
-& $ollama list | Select-String -SimpleMatch 'SparkLLM/Spark-X2.5-4B' | Out-Null
-if ($?) { & $ollama rm $HeavyModel | Out-Host }
+$modelList = (& $ollama list | Out-String)
+if ($modelList -match [regex]::Escape('SparkLLM/Spark-X2.5-4B')) {
+  & $ollama rm $HeavyModel | Out-Host
+} else {
+  Write-Host "No SparkLLM 8.2GB BF16 model registered in the KING store."
+}
 
 Step "COPY SENIOR CONFIGURATION TO KING"
 $repo = Split-Path -Parent $PSScriptRoot
