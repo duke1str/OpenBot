@@ -183,8 +183,20 @@ Write-Host "Runtime installed:  $runtimePath"
 
 if (-not $InstallOnly) {
   Step "RUN KING STAGE 2 NOW"
-  & powershell.exe -NoProfile -ExecutionPolicy Bypass -File $runtimePath -NoBrowser
-  if ($LASTEXITCODE -ne 0) { Fail "KING Stage 2 runtime failed." }
+  # The tenant package is persistent. Force the native API server to reload once during setup so
+  # revised Senior/agent definitions are synchronized without deleting conversations or volumes.
+  $previousForceReload = $env:OPENBOT_FORCE_RELOAD
+  $env:OPENBOT_FORCE_RELOAD = 'true'
+  try {
+    & powershell.exe -NoProfile -ExecutionPolicy Bypass -File $runtimePath -NoBrowser
+    if ($LASTEXITCODE -ne 0) { Fail "KING Stage 2 runtime failed." }
+  } finally {
+    if ($null -eq $previousForceReload) {
+      Remove-Item Env:OPENBOT_FORCE_RELOAD -ErrorAction SilentlyContinue
+    } else {
+      $env:OPENBOT_FORCE_RELOAD = $previousForceReload
+    }
+  }
 }
 
 Write-Host ""
