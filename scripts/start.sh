@@ -295,6 +295,11 @@ green "  managed coworker endpoint: $MANAGED_AGENT_AG_UI_URL"
 
 info "2/4  Server"
 require_free_or_ours "$SERVER_PORT" server
+if [ "${OPENBOT_FORCE_RELOAD:-false}" = "true" ] && identifies_as_openbot "$SERVER_PORT" server; then
+  info "  forced configuration reload requested; restarting API server"
+  stop_server_processes_for_restart
+  sleep 1
+fi
 #
 # A running server is left alone UNLESS this run minted a secret, because it read its environment
 # once at startup and has no way to notice the file changed underneath it.
