@@ -1,7 +1,12 @@
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js";
 import type { ToolAnnotations } from "@modelcontextprotocol/sdk/types.js";
-import { resultText, type ListedTool, type McpCallResult, McpServerError } from "./mcp";
+import {
+  McpServerError,
+  resultText,
+  type ListedTool,
+  type McpCallResult,
+} from "./mcp";
 
 /**
  * Local Cua Driver transport.
@@ -41,7 +46,18 @@ function socketFor(url: string): string {
 }
 
 function executable(): string {
-  return process.env.CUA_DRIVER_BIN?.trim() || "cua-driver";
+  const raw = process.env.CUA_DRIVER_BIN?.trim();
+  if (!raw) return "cua-driver";
+
+  const first = raw[0];
+  const last = raw[raw.length - 1];
+  if (
+    raw.length >= 2 &&
+    ((first === '"' && last === '"') || (first === "'" && last === "'"))
+  ) {
+    return raw.slice(1, -1);
+  }
+  return raw;
 }
 
 async function withClient<T>(
@@ -59,7 +75,9 @@ async function withClient<T>(
     return await use(client);
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
-    throw new McpServerError(`Cua Driver local MCP failed: ${message.slice(0, 500)}`);
+    throw new McpServerError(
+      `Cua Driver local MCP failed: ${message.slice(0, 500)}`,
+    );
   } finally {
     await client.close().catch(() => {});
   }
