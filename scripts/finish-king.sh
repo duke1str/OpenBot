@@ -74,6 +74,9 @@ if command -v cygpath >/dev/null 2>&1; then
 fi
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File "$CUA_VERIFY" || fail "CUA post-start verification failed."
 
+say "VERIFY OPENBOT CUA GOVERNANCE"
+bash scripts/verify-cua-openbot.sh
+
 echo
 echo "========================================"
 echo "SENIOR KING FINAL INFRASTRUCTURE = PASS"
