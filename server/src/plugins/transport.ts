@@ -1,5 +1,6 @@
 import * as builtinRoutines from "./builtin-routines";
 import * as composio from "./composio";
+import * as cuaDriver from "./cua-driver";
 import * as driveRest from "./google-drive-rest";
 import type { ListedTool, McpCallResult } from "./mcp";
 import * as mcp from "./mcp";
@@ -119,6 +120,7 @@ export type TransportKind =
   | "mcp"
   | "google-drive-rest"
   | "builtin-routines"
+  | "cua-driver"
   | "composio";
 
 /**
@@ -144,6 +146,7 @@ const TRANSPORTS: Record<TransportKind, VendorTransport> = {
   mcp,
   "google-drive-rest": driveRest,
   "builtin-routines": builtinRoutines,
+  "cua-driver": cuaDriver,
   composio,
 };
 
