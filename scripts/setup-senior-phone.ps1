@@ -49,14 +49,25 @@ if (-not $status -or $status.BackendState -ne 'Running') {
 }
 
 Write-Host 'Configuring private Tailscale Serve for Senior. This does NOT enable Funnel/public internet access.'
-$target = "http://127.0.0.1:$Port"
-& $tailscale serve --bg $target
+$appTarget = "http://127.0.0.1:$Port"
+$apiTarget = 'http://127.0.0.1:3001'
+
+# OpenBot's local Vite runtime serves the UI on 3010 and intentionally announces SERVER_PORT=3001
+# for WebSockets. The phone therefore needs private HTTPS/TLS termination for both ports.
+& $tailscale serve --https=443 --bg $appTarget
 if ($LASTEXITCODE -ne 0) {
-  Fail 'Tailscale Serve was not enabled. If a Tailscale HTTPS consent page was shown, approve it and rerun this script.'
+  Fail 'Tailscale Serve for the Senior UI was not enabled. If a Tailscale HTTPS consent page was shown, approve it and rerun this script.'
+}
+& $tailscale serve --https=3001 --bg $apiTarget
+if ($LASTEXITCODE -ne 0) {
+  Fail 'Tailscale Serve for Senior WebSockets was not enabled on private port 3001.'
 }
 
-$serve = & $tailscale serve status --json
+$serveText = [string]::Join([Environment]::NewLine, (& $tailscale serve status))
 if ($LASTEXITCODE -ne 0) { Fail 'Tailscale Serve status could not be verified.' }
+if ($serveText -notmatch ':3001') {
+  Fail 'Tailscale Serve does not show the required private 3001 WebSocket listener.'
+}
 
 $statusRaw = & $tailscale status --json
 $status = ([string]::Join([Environment]::NewLine, $statusRaw) | ConvertFrom-Json)
@@ -67,4 +78,6 @@ if (-not $dns) { Fail 'Tailscale is running but this device has no MagicDNS name
 Write-Host ""
 Write-Host "SENIOR PHONE ACCESS = CONFIGURED" -ForegroundColor Green
 Write-Host "Private URL: https://$dns/"
-Write-Host 'Install Tailscale on the phone, sign into the same tailnet, then open that private URL.'
+Write-Host "Private WebSocket route: https://${dns}:3001/"
+Write-Host 'Install Tailscale on the phone, sign into the same tailnet, then open the private URL above.'
+Write-Host 'Both listeners are Tailscale Serve routes inside the tailnet; Funnel/public exposure is not enabled.'
