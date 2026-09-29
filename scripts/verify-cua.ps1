@@ -52,6 +52,18 @@ $null = Call-Cua $Driver $DesktopSocket 'health_report'
 $null = Call-Cua $Driver $DesktopSocket 'list_apps'
 Write-Host 'CUA Desktop bounded/read path: PASS' -ForegroundColor Green
 
+# Prove omitted cross-boundary tools fail closed. A browser-origin runtime must reject generic
+# desktop input, and the native-app runtime must reject typed-browser inspection.
+$browserDenied = & $Driver call click '{}' --socket $BrowserSocket 2>&1
+if ($LASTEXITCODE -eq 0 -or ([string]::Join([Environment]::NewLine, $browserDenied) -notmatch '(?i)(permission_denied|not allowed|denied)')) {
+  Fail 'CUA Browser did not prove denial of generic desktop click.'
+}
+$desktopDenied = & $Driver call get_browser_state '{}' --socket $DesktopSocket 2>&1
+if ($LASTEXITCODE -eq 0 -or ([string]::Join([Environment]::NewLine, $desktopDenied) -notmatch '(?i)(permission_denied|not allowed|denied)')) {
+  Fail 'CUA Desktop did not prove denial of typed-browser access.'
+}
+Write-Host 'CUA cross-boundary denial checks: PASS' -ForegroundColor Green
+
 $browserText = Get-Content $browserManifest -Raw
 $desktopText = Get-Content $desktopManifest -Raw
 foreach ($forbidden in @('click','type_text','press_key','get_window_state','get_desktop_state')) {
