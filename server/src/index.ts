@@ -385,6 +385,122 @@ const pluginStore = createPluginStore({
 });
 
 /**
+ * Cua Driver is the local Windows/browser execution arm for Senior.
+ *
+ * It is deliberately bootstrapped through the plugin store instead of being handed directly to a
+ * Bot. That keeps every Cua call behind OpenBot's existing grants, action policy and audit trail.
+ * Two separate bounded Cua runtimes are used: one origin-scoped browser runtime and one native-app
+ * runtime. The separation matters because Cua refuses an origin-scoped browser manifest that also
+ * exposes generic desktop input, which would otherwise make the origin boundary decorative.
+ *
+ * Cua is optional at boot. Senior must still be able to start for diagnosis if the Windows driver
+ * is absent or a bounded daemon is down; the dedicated KING/Cua verifier is what decides whether
+ * the full workstation build is accepted.
+ */
+const cuaEnabled = /^(1|true|yes)$/i.test(
+  process.env.OPENBOT_CUA_ENABLED?.trim() ?? "",
+);
+
+if (cuaEnabled) {
+  const browserAgents = [
+    "senior",
+    "morrow-grain",
+    "ads-senior",
+    "luna-kk",
+    "publishing-growth",
+  ] as const;
+  const browserTools = [
+    "list_windows",
+    "get_browser_state",
+    "health_report",
+    "check_permissions",
+    "start_session",
+    "end_session",
+    "launch_app",
+    "browser_prepare",
+    "browser_navigate",
+    "browser_click",
+    "browser_type",
+    "browser_dialog",
+    "browser_set_input_files",
+    "browser_download",
+  ] as const;
+  const desktopTools = [
+    "list_apps",
+    "list_windows",
+    "get_window_state",
+    "health_report",
+    "check_permissions",
+    "verify_state",
+    "start_session",
+    "end_session",
+    "launch_app",
+    "click",
+    "double_click",
+    "type_text",
+    "press_key",
+    "hotkey",
+    "scroll",
+    "invoke_menu",
+    "set_window_frame",
+  ] as const;
+
+  try {
+    await pluginStore.addServer({
+      key: "cua-browser",
+      by: "deployment",
+    });
+    await pluginStore.addServer({
+      key: "cua-desktop",
+      by: "deployment",
+    });
+
+    for (const agentId of browserAgents) {
+      for (const toolName of browserTools) {
+        await pluginStore.grant(
+          "mcp",
+          `cua-browser/${toolName}`,
+          agentId,
+          "deployment",
+        );
+      }
+    }
+
+    // Native Windows control starts with the Chief of Staff only. Project Seniors get the narrower
+    // typed-browser surface above; PP Senior gets neither, preserving its research-only boundary.
+    for (const toolName of desktopTools) {
+      await pluginStore.grant(
+        "mcp",
+        `cua-desktop/${toolName}`,
+        "senior",
+        "deployment",
+      );
+    }
+
+    console.log(
+      JSON.stringify({
+        type: "cua-ready",
+        browserAgents: [...browserAgents],
+        browserToolCount: browserTools.length,
+        desktopAgents: ["senior"],
+        desktopToolCount: desktopTools.length,
+      }),
+    );
+  } catch (error) {
+    console.warn(
+      JSON.stringify({
+        type: "cua-unavailable",
+        reason:
+          error instanceof Error
+            ? error.message.slice(0, 500)
+            : "unknown Cua bootstrap failure",
+      }),
+    );
+  }
+}
+
+
+/**
  * Routines, and the one moment its tools are told what to act on.
  *
  * The builtin transport is reached as a MODULE — `transportFor` maps a kind to one — so there is no
