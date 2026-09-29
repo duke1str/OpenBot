@@ -53,11 +53,26 @@ printf '%s' "$RESPONSE" | grep -Fq 'KING BASH READY' || {
 }
 echo "KING Spark inference: PASS"
 
+say "SETUP CUA BOUNDED WINDOWS + BROWSER CONTROL"
+command -v powershell.exe >/dev/null 2>&1 || fail "PowerShell is required for CUA on Windows."
+CUA_SETUP="$ROOT/scripts/setup-cua.ps1"
+if command -v cygpath >/dev/null 2>&1; then
+  CUA_SETUP="$(cygpath -w "$CUA_SETUP")"
+fi
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File "$CUA_SETUP" || fail "CUA setup failed."
+
 say "START OPENBOT FAST REFRESH"
 OPENBOT_FORCE_RELOAD=true OPENBOT_SKIP_BUILD=true bash scripts/start.sh
 
 say "VERIFY FULL KING ROUTE"
 bash scripts/verify-king-stage2.sh
+
+say "VERIFY CUA AFTER OPENBOT START"
+CUA_VERIFY="$ROOT/scripts/verify-cua.ps1"
+if command -v cygpath >/dev/null 2>&1; then
+  CUA_VERIFY="$(cygpath -w "$CUA_VERIFY")"
+fi
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File "$CUA_VERIFY" || fail "CUA post-start verification failed."
 
 echo
 echo "========================================"
