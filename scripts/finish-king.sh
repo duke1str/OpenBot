@@ -61,8 +61,11 @@ if command -v cygpath >/dev/null 2>&1; then
 fi
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File "$CUA_SETUP" || fail "CUA setup failed."
 
-say "START OPENBOT FAST REFRESH"
-OPENBOT_FORCE_RELOAD=true OPENBOT_SKIP_BUILD=true bash scripts/start.sh
+say "START OPENBOT FINAL REBUILD"
+# This is a final acceptance run, not a configuration-only refresh. Cua adds server-side TypeScript,
+# so the Docker images must be rebuilt or the running stack can pass old-image health while missing
+# the new governed Cua transport.
+OPENBOT_FORCE_RELOAD=true OPENBOT_SKIP_BUILD=false bash scripts/start.sh
 
 say "VERIFY FULL KING ROUTE"
 bash scripts/verify-king-stage2.sh
