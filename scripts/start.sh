@@ -50,6 +50,7 @@ LANGGRAPH_PORT="$(setting LANGGRAPH_PORT 4201)"
 BOT_PROVIDER="$(setting BOT_PROVIDER openai | tr '[:upper:]' '[:lower:]' | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')"
 SUPERVISOR_PORT="$(setting SUPERVISOR_PORT 4500)"
 ONE_COMPUTER_EACH="${OPENBOT_ONE_COMPUTER_EACH:-true}"
+OPENBOT_CUA_ENABLED="$(setting OPENBOT_CUA_ENABLED false | tr '[:upper:]' '[:lower:]' | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')"
 export APP_PORT SERVER_PORT
 SUPERVISOR_TOKEN="$(setting SUPERVISOR_TOKEN openbot-dev-supervisor-token)"
 COMPUTER_TOKEN="$(setting COMPUTER_TOKEN openbot-dev-computer-token)"
@@ -235,6 +236,26 @@ stop_server_processes_for_restart() {
 echo
 echo "OpenBot"
 echo "======="
+
+if [[ "$OPENBOT_CUA_ENABLED" =~ ^(1|true|yes)$ ]]; then
+  info "CUA  bounded Windows/browser runtimes"
+  if [[ "${OS:-}" != "Windows_NT" && "${MSYSTEM:-}" != MINGW* ]]; then
+    red "  CUA is enabled for this deployment, but this launcher is not running on Windows."
+    exit 1
+  fi
+  if ! command -v powershell.exe >/dev/null 2>&1; then
+    red "  CUA is enabled but powershell.exe is unavailable."
+    exit 1
+  fi
+  CUA_START_SCRIPT="$ROOT/scripts/start-cua.ps1"
+  if command -v cygpath >/dev/null 2>&1; then
+    CUA_START_SCRIPT="$(cygpath -w "$CUA_START_SCRIPT")"
+  fi
+  if ! powershell.exe -NoProfile -ExecutionPolicy Bypass -File "$CUA_START_SCRIPT"; then
+    red "  CUA bounded runtimes did not start."
+    exit 1
+  fi
+fi
 
 info "1/4  Docker services"
 SERVICES=(postgres)
