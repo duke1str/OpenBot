@@ -42,12 +42,15 @@ function Start-CuaRuntime(
 ) {
   if (-not (Test-Path $Manifest)) { Fail "$Name capability manifest is missing: $Manifest" }
 
+  # Always restart an existing bounded daemon. Capability manifests expire by design;
+  # reusing a healthy-but-expired daemon would make Senior look available while every real action
+  # is denied. A normal Senior start therefore refreshes the reviewed bounded authorization window.
   if (Test-CuaRuntime $Exe $Socket) {
-    Write-Host "$Name: READY (existing bounded daemon)" -ForegroundColor Green
-    return
+    & $Exe stop --socket $Socket *> $null
+    Start-Sleep -Milliseconds 500
+  } else {
+    & $Exe stop --socket $Socket *> $null
   }
-
-  & $Exe stop --socket $Socket *> $null
   Start-Sleep -Milliseconds 500
   Remove-Item $Stdout,$Stderr -Force -ErrorAction SilentlyContinue
 
