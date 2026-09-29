@@ -278,6 +278,85 @@ export const CATALOGUE: readonly CatalogueEntry[] = Object.freeze([
     docsUrl: "https://developers.notion.com/guides/mcp/build-mcp-client",
   },
   {
+    key: "cua-browser",
+    title: "Cua Browser",
+    vendor: "Cua",
+    summary:
+      "Bounded local Chromium control for approved Senior web origins on this Windows desktop.",
+    host: "builtin://cua-browser",
+    path: "/",
+    transport: "cua-driver",
+    auth: Object.freeze({ kind: "builtin" }),
+    /*
+     * Anything capable of changing browser state is a write. Inspection stays read-only.
+     * The separate Cua bounded manifest is the resource ceiling; this list is OpenBot's
+     * effect classification for policy/audit.
+     */
+    writeTools: Object.freeze([
+      "start_session",
+      "end_session",
+      "launch_app",
+      "browser_prepare",
+      "browser_navigate",
+      "browser_click",
+      "browser_type",
+      "browser_dialog",
+      "browser_set_input_files",
+      "browser_download",
+      "browser_pointer",
+      "escalate_session",
+    ]),
+    docsUrl: "https://cua.ai/docs/reference/cua-driver/mcp-tools-windows",
+  },
+  {
+    key: "cua-desktop",
+    title: "Cua Desktop",
+    vendor: "Cua",
+    summary:
+      "Bounded local native-app control for explicitly approved non-browser Windows applications.",
+    host: "builtin://cua-desktop",
+    path: "/",
+    transport: "cua-driver",
+    auth: Object.freeze({ kind: "builtin" }),
+    /*
+     * Conservative by construction: every input/config/lifecycle operation is a write.
+     * Only observation/diagnostic tools omitted from this list classify as reads.
+     */
+    writeTools: Object.freeze([
+      "launch_app",
+      "kill_app",
+      "bring_to_front",
+      "set_window_frame",
+      "click",
+      "double_click",
+      "right_click",
+      "drag",
+      "type_text",
+      "press_key",
+      "hotkey",
+      "set_value",
+      "scroll",
+      "move_cursor",
+      "zoom",
+      "page",
+      "clipboard_write",
+      "start_recording",
+      "stop_recording",
+      "replay_trajectory",
+      "set_config",
+      "start_session",
+      "end_session",
+      "set_agent_cursor_enabled",
+      "set_agent_cursor_motion",
+      "invoke_menu",
+      "set_agent_cursor_theme",
+      "install_ffmpeg",
+      "install_extension",
+      "escalate_session",
+    ]),
+    docsUrl: "https://cua.ai/docs/reference/cua-driver/mcp-tools-windows",
+  },
+  {
     key: "routines",
     title: "Routines",
     vendor: "OpenBot",
