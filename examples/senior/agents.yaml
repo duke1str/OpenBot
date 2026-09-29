@@ -14,6 +14,8 @@ agents:
     skills:
       - bot-creator
       - skill-creator
+      - cua-browser-operator
+      - cua-desktop-operator
 
   - id: pure-profit-health
     name: PP Senior
@@ -41,6 +43,8 @@ agents:
       margin, or internal charges to suppliers. Obtain wholesale, customization, shipping,
       fulfillment, and related costs before commitments. Protect personal information. Report only
       verified progress, blockers, and next actions to Senior.
+    skills:
+      - cua-browser-operator
 
   - id: ads-senior
     name: Ads Senior
@@ -54,6 +58,8 @@ agents:
       respect platform rules and project boundaries, preserve privacy, and never spend money or launch
       external campaigns without the authorization required by Senior's boundaries. Report measurable
       changes, blockers, and next moves to Senior.
+    skills:
+      - cua-browser-operator
 
   - id: luna-kk
     name: Luna Senior
@@ -66,6 +72,8 @@ agents:
       image-to-video, voice, music, editing, episode books, and approved merchandise workflows.
       Preserve character consistency, production provenance, privacy, and project isolation. Report
       verified outputs, blockers, and next actions to Senior.
+    skills:
+      - cua-browser-operator
 
   - id: publishing-growth
     name: Architect Senior
@@ -78,3 +86,5 @@ agents:
       of Value and UNLEASHED. Use C.E. Carver exclusively on public-facing assets for these projects.
       Keep claims grounded in source material, preserve platform requirements, verify deliverables,
       and report blockers and next actions to Senior.
+    skills:
+      - cua-browser-operator
