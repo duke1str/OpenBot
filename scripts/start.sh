@@ -238,6 +238,21 @@ echo "OpenBot"
 echo "======="
 
 if [[ "$OPENBOT_CUA_ENABLED" =~ ^(1|true|yes)$ ]]; then
+  info "AWAKE  keep Windows available for remote Senior access"
+  if command -v powershell.exe >/dev/null 2>&1; then
+    AWAKE_SCRIPT="$ROOT/scripts/keep-senior-awake.ps1"
+    if command -v cygpath >/dev/null 2>&1; then
+      AWAKE_SCRIPT="$(cygpath -w "$AWAKE_SCRIPT")"
+    fi
+    powershell.exe -NoProfile -ExecutionPolicy Bypass -Command       "Start-Process powershell.exe -WindowStyle Hidden -ArgumentList @('-NoProfile','-ExecutionPolicy','Bypass','-File','''$AWAKE_SCRIPT''')"       >/dev/null 2>&1 || true
+    sleep 1
+    if [ -f "$LOGS/senior-awake.pid" ]; then
+      green "  Senior keep-awake active"
+    else
+      info "  Senior keep-awake already active or still starting"
+    fi
+  fi
+
   info "CUA  bounded Windows/browser runtimes"
   if [[ "${OS:-}" != "Windows_NT" && "${MSYSTEM:-}" != MINGW* ]]; then
     red "  CUA is enabled for this deployment, but this launcher is not running on Windows."
