@@ -120,10 +120,24 @@ echo
 echo "OpenBot"
 echo "======="
 
-info "1/4  App"
+info "1/5  App"
 stop_port "$APP_PORT" app
 
-info "2/4  Routine worker"
+info "2/5  Senior keep-awake"
+AWAKE_PID_FILE="$ROOT/.logs/senior-awake.pid"
+if [ -f "$AWAKE_PID_FILE" ] && command -v powershell.exe >/dev/null 2>&1; then
+  AWAKE_PID="$(tr -dc '0-9' < "$AWAKE_PID_FILE" || true)"
+  if [ -n "$AWAKE_PID" ]; then
+    powershell.exe -NoProfile -Command "Stop-Process -Id $AWAKE_PID -Force -ErrorAction SilentlyContinue" >/dev/null 2>&1 || true
+    sleep 1
+  fi
+  rm -f "$AWAKE_PID_FILE"
+  green "  Senior keep-awake: stopped"
+else
+  info "  Senior keep-awake: not running"
+fi
+
+info "3/5  Routine worker"
 # The same pattern start.sh starts it with, and it has to stay that specific: a bare `bun
 # src/index.ts` matches the server, computer and supervisor containers on a Linux host too.
 if pgrep -f "bun worker/src/index.ts" >/dev/null 2>&1; then
@@ -133,10 +147,10 @@ else
   info "  worker: not running"
 fi
 
-info "3/4  API server"
+info "4/5  API server"
 stop_port "$SERVER_PORT" server
 
-info "4/4  Docker"
+info "5/5  Docker"
 if docker compose ps --quiet 2>/dev/null | grep -q .; then
   docker compose down >/dev/null 2>&1
   green "  compose services: stopped"
