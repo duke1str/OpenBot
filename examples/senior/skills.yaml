@@ -15,3 +15,62 @@ skills:
       permission. Name required tools explicitly only after the connector and boundary policy have
       been reviewed. Preserve project isolation and fail closed when a capability is not granted.
     tools: []
+  - slug: cua-browser-operator
+    title: Cua Browser Operator
+    summary: Operate approved Chromium workflows through Senior's bounded Cua browser runtime.
+    instructions: >-
+      Use the typed Cua browser tools only for origins and profiles admitted by the bounded runtime.
+      Observe current browser/window state before acting and verify the resulting state after every
+      material action. Prefer exact tabs, exact windows, and background delivery. Never bypass login,
+      MFA, platform safeguards, approval boundaries, or origin restrictions. Never expose secrets.
+      Spending, external publishing, deletion, contracts, purchases, irreversible account changes,
+      and customer or supplier commitments still require Senior's existing approval boundary.
+      Cua authority never extends Pure Profit execution authority and must never be used to place,
+      cancel, replace, or close brokerage orders or weaken protected PAPER-only controls. If the
+      bounded runtime refuses an origin or action, fail closed and report the exact blocker.
+    tools:
+      - cua-browser/list_windows
+      - cua-browser/get_browser_state
+      - cua-browser/health_report
+      - cua-browser/check_permissions
+      - cua-browser/start_session
+      - cua-browser/end_session
+      - cua-browser/launch_app
+      - cua-browser/browser_prepare
+      - cua-browser/browser_navigate
+      - cua-browser/browser_click
+      - cua-browser/browser_type
+      - cua-browser/browser_dialog
+      - cua-browser/browser_set_input_files
+      - cua-browser/browser_download
+  - slug: cua-desktop-operator
+    title: Cua Desktop Operator
+    summary: Operate explicitly approved non-browser Windows applications through Senior's bounded Cua desktop runtime.
+    instructions: >-
+      Use this skill only as COS Senior and only against applications named by the bounded native-app
+      capability manifest. Take a fresh window snapshot before element-indexed input, target an exact
+      process and window, and independently verify the result after every material action. This
+      desktop runtime must not target Chrome, Edge, or another browser as a way around the browser
+      origin boundary. Do not change security settings, credentials, protected files, or system
+      configuration; do not execute shell or terminal commands through desktop automation unless a
+      separate reviewed grant explicitly authorizes that capability. Spending, publishing, deletion,
+      contracts, purchases, and irreversible changes retain Senior's approval requirements. Fail
+      closed on ambiguous windows, stale element handles, denied resources, or unverifiable effects.
+    tools:
+      - cua-desktop/list_apps
+      - cua-desktop/list_windows
+      - cua-desktop/get_window_state
+      - cua-desktop/health_report
+      - cua-desktop/check_permissions
+      - cua-desktop/verify_state
+      - cua-desktop/start_session
+      - cua-desktop/end_session
+      - cua-desktop/launch_app
+      - cua-desktop/click
+      - cua-desktop/double_click
+      - cua-desktop/type_text
+      - cua-desktop/press_key
+      - cua-desktop/hotkey
+      - cua-desktop/scroll
+      - cua-desktop/invoke_menu
+      - cua-desktop/set_window_frame
